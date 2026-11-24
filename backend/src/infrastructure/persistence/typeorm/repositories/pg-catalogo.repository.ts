@@ -50,7 +50,7 @@ export class PgCatalogoRepository implements ICatalogoRepository {
   obtenerEdificios(): Promise<EdificioResumenModel[]> {
     return this.dataSource.query(
       `SELECT
-         e.id, e.codigo, e.nombre, e.uso, e.pisos, e.ascensor,
+         e.id, e.codigo, e.nombre, e.alias, e.uso, e.pisos, e.ascensor, e.descripcion,
          e.area_m2::float8 AS "areaM2",
          s.codigo AS "sedeCodigo",
          ST_X(COALESCE(e.centro, ST_Centroid(e.geom)))::float8 AS lon,

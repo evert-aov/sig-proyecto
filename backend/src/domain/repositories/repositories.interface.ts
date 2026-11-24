@@ -7,6 +7,7 @@ import {
   FotoResumen,
 } from '../models/centro-interno.model';
 import {
+  DatosActualizarEdificio,
   EdificioResumenModel,
   FacultadModel,
   LeyendaItemModel,
@@ -29,6 +30,14 @@ export const RUTAS_REPOSITORY = Symbol('RUTAS_REPOSITORY');
 export const ESPACIAL_REPOSITORY = Symbol('ESPACIAL_REPOSITORY');
 export const FOTOS_REPOSITORY = Symbol('FOTOS_REPOSITORY');
 export const USUARIOS_REPOSITORY = Symbol('USUARIOS_REPOSITORY');
+export const EDIFICIOS_REPOSITORY = Symbol('EDIFICIOS_REPOSITORY');
+
+export interface IEdificiosRepository {
+  actualizarDescriptivos(
+    codigo: string,
+    datos: DatosActualizarEdificio,
+  ): Promise<EdificioResumenModel | null>;
+}
 
 export interface ICapasRepository {
   obtenerGeoJson(capa: NombreCapa, filtro: FiltroCapas): Promise<GeoJsonFeatureCollection>;

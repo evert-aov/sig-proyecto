@@ -6,6 +6,7 @@ import {
   CAPAS_REPOSITORY,
   CATALOGO_REPOSITORY,
   CENTROS_INTERNOS_REPOSITORY,
+  EDIFICIOS_REPOSITORY,
   ESPACIAL_REPOSITORY,
   FOTOS_REPOSITORY,
   RUTAS_REPOSITORY,
@@ -13,6 +14,7 @@ import {
 } from '../../domain/repositories/repositories.interface';
 import { FOTO_STORAGE_PORT } from '../../domain/ports/storage.port';
 import { ObtenerCapaGeoJsonUseCase } from '../../application/use-cases/obtener-capa-geojson.use-case';
+import { ActualizarEdificioUseCase } from '../../application/use-cases/actualizar-edificio.use-case';
 import {
   ActualizarCentroInternoUseCase,
   CrearCentroInternoUseCase,
@@ -44,6 +46,7 @@ import { JwtAuthGuard, JwtStrategy } from '../../infrastructure/auth/jwt.strateg
 import { PgCapasRepository } from '../../infrastructure/persistence/typeorm/repositories/pg-capas.repository';
 import { PgCentrosInternosRepository } from '../../infrastructure/persistence/typeorm/repositories/pg-centros-internos.repository';
 import { PgCatalogoRepository } from '../../infrastructure/persistence/typeorm/repositories/pg-catalogo.repository';
+import { PgEdificiosRepository } from '../../infrastructure/persistence/typeorm/repositories/pg-edificios.repository';
 import {
   PgBusquedaRepository,
   PgEspacialRepository,
@@ -57,6 +60,7 @@ import { LocalFotoStorage } from '../../infrastructure/storage/local-foto.storag
 import { CapasController } from '../controllers/capas.controller';
 import { CentrosInternosController } from '../controllers/centros-internos.controller';
 import { CatalogoController } from '../controllers/catalogo.controller';
+import { EdificiosController } from '../controllers/edificios.controller';
 import {
   BusquedaController,
   EspacialController,
@@ -87,14 +91,16 @@ export class CapasModule {}
 export class CentrosInternosModule {}
 
 @Module({
-  controllers: [CatalogoController],
+  controllers: [CatalogoController, EdificiosController],
   providers: [
     ObtenerLeyendaUseCase,
     ObtenerFacultadesUseCase,
     ObtenerSedesUseCase,
     ObtenerEdificiosUseCase,
     ObtenerUnidadesCentroUseCase,
+    ActualizarEdificioUseCase,
     { provide: CATALOGO_REPOSITORY, useClass: PgCatalogoRepository },
+    { provide: EDIFICIOS_REPOSITORY, useClass: PgEdificiosRepository },
   ],
 })
 export class CatalogoModule {}
