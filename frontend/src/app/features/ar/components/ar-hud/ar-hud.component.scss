@@ -1,0 +1,215 @@
+.ar-hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10px;
+  gap: 8px;
+}
+
+.ar-top {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ar-topbar,
+.ar-sliders,
+.ar-nearby,
+.ar-card {
+  pointer-events: auto;
+}
+
+.ar-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(19, 35, 58, 0.88);
+  backdrop-filter: blur(8px);
+  color: #f8fafc;
+  padding: 0.5rem 0.7rem;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+
+  .ar-status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.74rem;
+  }
+
+  .ar-actions {
+    display: flex;
+    gap: 0.35rem;
+
+    button {
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      padding: 0.32rem 0.58rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.74rem;
+      font-weight: 600;
+      cursor: pointer;
+
+      &.is-active {
+        background: var(--crimson);
+        border-color: var(--crimson);
+      }
+    }
+  }
+}
+
+.ar-info-banner {
+  align-self: center;
+  background: rgba(19, 35, 58, 0.78);
+  color: #e2e8f0;
+  padding: 0.26rem 0.7rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+.ar-sliders {
+  align-self: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  background: rgba(19, 35, 58, 0.88);
+  color: #f8fafc;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  max-width: 100%;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    font-size: 0.72rem;
+    min-width: 180px;
+  }
+}
+
+.ar-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.ar-nearby {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  padding-bottom: 2px;
+
+  .nearby-chip {
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(19, 35, 58, 0.86);
+    color: #f8fafc;
+    padding: 0.38rem 0.6rem;
+    border-radius: var(--radius-sm);
+    text-align: left;
+    cursor: pointer;
+
+    strong {
+      display: block;
+      font-size: 0.75rem;
+      color: #fca5a5;
+    }
+
+    span {
+      font-size: 0.69rem;
+      color: #cbd5e1;
+    }
+
+    &.is-active {
+      border-color: var(--crimson);
+      background: rgba(185, 28, 28, 0.92);
+    }
+  }
+}
+
+.ar-card {
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 0.8rem 0.9rem;
+  box-shadow: var(--shadow-md);
+  max-width: 480px;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+
+    .tag {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--crimson);
+    }
+
+    h3 {
+      margin: 0.1rem 0 0;
+      font-size: 0.94rem;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      background: var(--surface-alt);
+      width: 26px;
+      height: 26px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+    }
+  }
+
+  .meta {
+    margin: 0.3rem 0;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+  }
+
+  .ref {
+    margin: 0.2rem 0;
+    font-size: 0.76rem;
+    color: var(--text-primary);
+  }
+
+  .servicios {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.28rem;
+    margin-top: 0.35rem;
+
+    span {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      padding: 0.16rem 0.42rem;
+      border-radius: 4px;
+      font-size: 0.71rem;
+    }
+  }
+
+  &__footer {
+    margin-top: 0.55rem;
+
+    .btn-ruta {
+      display: inline-block;
+      background: var(--crimson);
+      color: #ffffff;
+      text-decoration: none;
+      padding: 0.44rem 0.78rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+  }
+}

@@ -1,0 +1,50 @@
+<header class="topnav">
+  <a routerLink="/" class="topnav__brand">
+    <svg class="topnav__mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" />
+      <line x1="9" y1="3" x2="9" y2="18" />
+      <line x1="15" y1="6" x2="15" y2="21" />
+    </svg>
+    <div class="topnav__brand-text">
+      <span class="topnav__title">SIG UAGRM</span>
+      <span class="topnav__subtitle">Centros Internos · G16</span>
+    </div>
+  </a>
+
+  <nav class="topnav__links" aria-label="Navegación principal">
+    <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M12 21s-6-5.33-6-10a6 6 0 1 1 12 0c0 4.67-6 10-6 10z" />
+        <circle cx="12" cy="11" r="2" />
+      </svg>
+      <span>Mapa</span>
+    </a>
+    <a routerLink="/ar" routerLinkActive="is-active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M4 8V6a2 2 0 0 1 2-2h2" />
+        <path d="M16 4h2a2 2 0 0 1 2 2v2" />
+        <path d="M4 16v2a2 2 0 0 0 2 2h2" />
+        <path d="M16 20h2a2 2 0 0 0 2-2v-2" />
+        <circle cx="12" cy="12" r="3" />
+      </svg>
+      <span>AR</span>
+    </a>
+    <a routerLink="/admin" routerLinkActive="is-active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <rect x="3" y="3" width="7" height="7" rx="1" />
+        <rect x="14" y="3" width="7" height="7" rx="1" />
+        <rect x="3" y="14" width="7" height="7" rx="1" />
+        <rect x="14" y="14" width="7" height="7" rx="1" />
+      </svg>
+      <span>Gestión</span>
+    </a>
+  </nav>
+
+  <div class="topnav__status">
+    @if (auth.autenticado()) {
+      <span class="status-pill status-pill--auth">Admin</span>
+    } @else {
+      <span class="status-pill">Público</span>
+    }
+  </div>
+</header>

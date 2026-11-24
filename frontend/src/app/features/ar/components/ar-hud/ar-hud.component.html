@@ -1,0 +1,107 @@
+<div class="ar-hud">
+  <div class="ar-top">
+    <div class="ar-topbar">
+      <div class="ar-status">
+        <span class="badge" [class.badge--ok]="camaraActiva()" [class.badge--warn]="!camaraActiva()">
+          {{ camaraActiva() ? 'Cámara activa' : 'Simulador 3D' }}
+        </span>
+        <span class="coords mono">
+          {{ posicion().lat.toFixed(5) }}, {{ posicion().lon.toFixed(5) }}
+          ({{ posicion().simulada ? 'UAGRM' : 'GPS' }})
+        </span>
+      </div>
+
+      <div class="ar-actions">
+        <button type="button" (click)="activarGps.emit()">GPS Real</button>
+        <button type="button" (click)="simularCampus.emit()">Plaza CU</button>
+        <button
+          type="button"
+          [class.is-active]="mostrarAjustes()"
+          (click)="mostrarAjustes.set(!mostrarAjustes())"
+        >
+          Ajustes
+        </button>
+      </div>
+    </div>
+
+    <div class="ar-info-banner">{{ estadoMensaje() }}</div>
+
+    @if (mostrarAjustes()) {
+      <div class="ar-sliders">
+        <label>
+          <span>Brújula simulada: <strong class="mono">{{ rumboSimulado() }}°</strong></span>
+          <input
+            type="range"
+            min="0"
+            max="359"
+            [ngModel]="rumboSimulado()"
+            (ngModelChange)="cambiarRumbo.emit(+$event)"
+          />
+        </label>
+        <label>
+          <span>Radio AR: <strong class="mono">{{ radioVisibilidadM() }} m</strong> ({{ puntosCercanos().length }} visibles)</span>
+          <input
+            type="range"
+            min="100"
+            max="1500"
+            step="50"
+            [ngModel]="radioVisibilidadM()"
+            (ngModelChange)="cambiarRadio.emit(+$event)"
+          />
+        </label>
+      </div>
+    }
+  </div>
+
+  <div class="ar-bottom">
+    <div class="ar-nearby">
+      @for (item of puntosCercanos().slice(0, 6); track item.centro.id) {
+        <button
+          type="button"
+          class="nearby-chip"
+          [class.is-active]="centroEnfocado()?.codigo === item.centro.codigo"
+          (click)="seleccionarCentro.emit(item.centro.codigo)"
+        >
+          <strong class="mono">{{ item.centro.unidadSigla || item.centro.codigo }}</strong>
+          <span class="mono">{{ item.distanciaM }} m · {{ item.cardinal }}</span>
+        </button>
+      }
+    </div>
+
+    @if (centroEnfocado(); as centro) {
+      <div class="ar-card">
+        <div class="ar-card__header">
+          <div>
+            <span class="tag mono">{{ centro.facultadSigla || 'UAGRM' }} · {{ centro.codigo }}</span>
+            <h3>{{ centro.nombre }}</h3>
+          </div>
+          <button type="button" (click)="cerrarFicha.emit()" aria-label="Cerrar">✕</button>
+        </div>
+
+        <p class="meta">
+          {{ centro.edificioNombre || centro.sedeNombre }} ·
+          {{ centro.piso === 0 ? 'Planta baja' : 'Piso ' + centro.piso }}
+          @if (centro.horario) {
+            · {{ centro.horario }}
+          }
+        </p>
+
+        @if (centro.referencia) {
+          <p class="ref">{{ centro.referencia }}</p>
+        }
+
+        @if (centro.servicios.length > 0) {
+          <div class="servicios">
+            @for (srv of centro.servicios; track srv) {
+              <span>{{ srv }}</span>
+            }
+          </div>
+        }
+
+        <div class="ar-card__footer">
+          <a routerLink="/" class="btn-ruta">Abrir en Mapa y Trazar Ruta</a>
+        </div>
+      </div>
+    }
+  </div>
+</div>

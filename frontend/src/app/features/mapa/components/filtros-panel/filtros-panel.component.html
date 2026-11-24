@@ -1,0 +1,101 @@
+<section class="filtros-panel">
+  <div class="filtros-panel__search">
+    <input
+      type="search"
+      placeholder="Buscar centro, carrera, módulo o servicio..."
+      [ngModel]="textoBusqueda()"
+      (ngModelChange)="buscarTexto.emit($event)"
+    />
+    @if (resultadosBusqueda().length > 0) {
+      <ul class="search-dropdown">
+        @for (res of resultadosBusqueda(); track res.entidad + '-' + res.id) {
+          <li>
+            <button type="button" (click)="seleccionarBusqueda.emit(res)">
+              <span class="dot" [style.background]="res.color"></span>
+              <span class="meta">
+                <strong>{{ res.nombre }}</strong>
+                <small>{{ res.subtitulo }}</small>
+              </span>
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+
+  <div class="filtros-panel__controls">
+    <label>
+      <span>Facultad (18 oficiales)</span>
+      <select
+        [ngModel]="facultadIdSeleccionada() ?? ''"
+        (ngModelChange)="onFacultadChange($event)"
+      >
+        <option value="">Todas las facultades</option>
+        @for (fac of facultades(); track fac.id) {
+          <option [value]="fac.id">
+            {{ fac.sigla || fac.codigo }} — {{ fac.nombre }} ({{ fac.totalCentrosInternos }})
+          </option>
+        }
+      </select>
+    </label>
+
+    <label>
+      <span>Sede universitaria</span>
+      <select
+        [ngModel]="sedeCodigoSeleccionada() ?? ''"
+        (ngModelChange)="onSedeChange($event)"
+      >
+        <option value="">Todas las sedes</option>
+        @for (sede of sedes(); track sede.id) {
+          <option [value]="sede.codigo">{{ sede.codigo }} — {{ sede.nombre }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="checkbox-row">
+      <input
+        type="checkbox"
+        [ngModel]="soloSinEscaleras()"
+        (ngModelChange)="cambiarAccesibilidad.emit($event)"
+      />
+      <span>Solo llegada sin escaleras (PB o ascensor)</span>
+    </label>
+  </div>
+
+  <div class="filtros-panel__header">
+    <h3>Centros Internos</h3>
+    <span class="count mono">{{ centros().length }}</span>
+  </div>
+
+  <div class="filtros-panel__list">
+    @for (c of centros(); track c.id) {
+      <button
+        type="button"
+        class="centro-card"
+        [class.is-selected]="codigoSeleccionado() === c.codigo"
+        (click)="seleccionarCentro.emit(c.codigo)"
+      >
+        <div class="centro-card__top">
+          <span class="sigla mono">{{ c.unidadSigla || c.codigo }}</span>
+          <span
+            class="badge"
+            [class.badge--ok]="c.llegadaSinEscaleras"
+            [class.badge--warn]="!c.llegadaSinEscaleras"
+          >
+            {{ c.llegadaSinEscaleras ? 'Sin escaleras' : 'Con gradas' }}
+          </span>
+        </div>
+        <div class="centro-card__title">{{ c.nombre }}</div>
+        <div class="centro-card__sub">
+          {{ c.facultadSigla || 'UAGRM' }} · {{ c.edificioCodigo || c.sedeCodigo }} ·
+          {{ c.piso === 0 ? 'Planta baja' : 'Piso ' + c.piso }}
+        </div>
+      </button>
+    } @empty {
+      <div class="empty-state">
+        <strong>Sin resultados registrados</strong>
+        <p>No hay Centros Internos cargados para los filtros seleccionados.</p>
+      </div>
+    }
+  </div>
+</section>

@@ -1,0 +1,57 @@
+<div class="visor-wrap">
+  <div #mapContainer class="visor-canvas"></div>
+
+  <div class="visor-toolbar">
+    <button
+      type="button"
+      class="tool-btn"
+      [class.is-active]="modo3D()"
+      (click)="toggle3D.emit()"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+        <path d="M2 17l10 5 10-5" />
+        <path d="M2 12l10 5 10-5" />
+      </svg>
+      <span>{{ modo3D() ? '3D Activo' : 'Vista 3D' }}</span>
+    </button>
+
+    <button
+      type="button"
+      class="tool-btn"
+      [class.is-active]="mapaBase() === 'satelite'"
+      (click)="toggleMapaBase.emit()"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M3.6 9h16.8M3.6 15h16.8M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+      </svg>
+      <span>{{ mapaBase() === 'satelite' ? 'Mapa OSM' : 'Satélite' }}</span>
+    </button>
+
+    <button type="button" class="tool-btn" (click)="solicitarGps.emit()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+        <circle cx="12" cy="12" r="7" />
+      </svg>
+      <span>Mi Ubicación</span>
+    </button>
+
+    <button type="button" class="tool-btn" (click)="centrarCampus.emit('CU')">
+      <span>Ciudad Univ.</span>
+    </button>
+
+    <button type="button" class="tool-btn" (click)="centrarCampus.emit('CAMPUS')">
+      <span>El Cristo</span>
+    </button>
+  </div>
+
+  @if (seleccionandoOrigen()) {
+    <div class="visor-banner visor-banner--action">
+      Toca un punto del mapa para fijar el inicio de la ruta.
+    </div>
+  } @else if (estadoUbicacion()) {
+    <div class="visor-banner">{{ estadoUbicacion() }}</div>
+  }
+</div>

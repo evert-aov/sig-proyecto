@@ -1,0 +1,314 @@
+<div class="admin-container">
+  <header class="admin-header">
+    <div>
+      <h1>Gestión de Infraestructura y Control Espacial</h1>
+      <p>Catálogo de Centros Internos (Grupo 16), superficies calculadas y validación topológica PostGIS.</p>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button type="button" [class.is-active]="tab() === 'centros'" (click)="tab.set('centros')">
+        Centros y Fotos
+      </button>
+      <button type="button" [class.is-active]="tab() === 'superficies'" (click)="tab.set('superficies')">
+        Superficies (m²)
+      </button>
+      <button type="button" [class.is-active]="tab() === 'qa'" (click)="tab.set('qa')">
+        QA Topológica
+      </button>
+    </div>
+  </header>
+
+  @if (admin.mensajeOk()) {
+    <div class="alert alert--ok">{{ admin.mensajeOk() }}</div>
+  }
+  @if (admin.mensajeError()) {
+    <div class="alert alert--error">{{ admin.mensajeError() }}</div>
+  }
+
+  @switch (tab()) {
+    @case ('centros') {
+      <div class="grid-two">
+        <section class="panel">
+          @if (!auth.autenticado()) {
+            <h2>Acceso de edición</h2>
+            <p class="hint">La consulta pública está abierta; editar registros o subir fotos requiere sesión.</p>
+            <form (ngSubmit)="onLogin()" class="form-stack">
+              <label>
+                <span>Correo institucional</span>
+                <input type="email" [(ngModel)]="correo" name="correo" required />
+              </label>
+              <label>
+                <span>Contraseña</span>
+                <input type="password" [(ngModel)]="password" name="password" placeholder="Contraseña" required />
+              </label>
+              @if (auth.error()) {
+                <p class="err">{{ auth.error() }}</p>
+              }
+              <button type="submit" class="btn-primary">Iniciar sesión</button>
+            </form>
+          } @else {
+            <div class="session-bar">
+              <div>
+                <span class="session-label">Sesión activa</span>
+                <strong>{{ auth.usuario()?.nombre }}</strong>
+              </div>
+              <button type="button" class="btn-outline" (click)="auth.logout()">Salir</button>
+            </div>
+
+            <h2>Registrar Centro Interno</h2>
+            <form (ngSubmit)="onCrearCentro()" class="form-stack">
+              <div class="row-2">
+                <label>
+                  <span>Código (A-Z, 0-9, -)</span>
+                  <input type="text" [(ngModel)]="codigo" name="codigo" class="mono" required />
+                </label>
+                <label>
+                  <span>Piso (0 = PB)</span>
+                  <input type="number" [(ngModel)]="piso" name="piso" class="mono" required />
+                </label>
+              </div>
+
+              <label>
+                <span>Edificio / Módulo</span>
+                <select [(ngModel)]="edificioCodigo" name="edificioCodigo" (ngModelChange)="onEdificioChange($event)">
+                  @for (e of admin.edificios(); track e.id) {
+                    <option [value]="e.codigo">{{ e.codigo }} — {{ e.nombre }}</option>
+                  }
+                </select>
+              </label>
+
+              <label>
+                <span>Unidad organizacional</span>
+                <select [(ngModel)]="unidadCodigo" name="unidadCodigo">
+                  @for (u of admin.unidades(); track u.id) {
+                    <option [value]="u.codigo">{{ u.sigla || u.codigo }} — {{ u.nombre }}</option>
+                  }
+                </select>
+              </label>
+
+              <label>
+                <span>Nombre del Centro Interno</span>
+                <input type="text" [(ngModel)]="nombre" name="nombre" placeholder="Ej. Centro Interno de Ingeniería Informática" required />
+              </label>
+
+              <div class="row-2">
+                <label>
+                  <span>Longitud (WGS84)</span>
+                  <input type="number" step="0.00001" [(ngModel)]="lon" name="lon" class="mono" required />
+                </label>
+                <label>
+                  <span>Latitud (WGS84)</span>
+                  <input type="number" step="0.00001" [(ngModel)]="lat" name="lat" class="mono" required />
+                </label>
+              </div>
+
+              <label>
+                <span>Referencia de ubicación interna</span>
+                <input type="text" [(ngModel)]="referencia" name="referencia" placeholder="Ej. Planta baja, ala norte" />
+              </label>
+
+              <div class="row-2">
+                <label>
+                  <span>Encargado</span>
+                  <input type="text" [(ngModel)]="encargado" name="encargado" />
+                </label>
+                <label>
+                  <span>Teléfono</span>
+                  <input type="text" [(ngModel)]="telefono" name="telefono" />
+                </label>
+              </div>
+
+              <label>
+                <span>Horario de atención</span>
+                <input type="text" [(ngModel)]="horario" name="horario" />
+              </label>
+
+              <label>
+                <span>Servicios (separados por coma)</span>
+                <input type="text" [(ngModel)]="serviciosTexto" name="serviciosTexto" />
+              </label>
+
+              <button type="submit" class="btn-primary">Guardar Centro Interno</button>
+            </form>
+
+            <hr class="divider" />
+            <h2>Subir fotografía (CINT/&lt;CODIGO&gt;)</h2>
+            <form (ngSubmit)="onSubirFoto()" class="form-stack">
+              <div class="row-2">
+                <label>
+                  <span>Centro Interno</span>
+                  <select [(ngModel)]="fotoCentroCodigo" name="fotoCentroCodigo">
+                    @for (c of admin.centros(); track c.id) {
+                      <option [value]="c.codigo">{{ c.codigo }}</option>
+                    }
+                  </select>
+                </label>
+                <label>
+                  <span>Tipo</span>
+                  <select [(ngModel)]="fotoTipo" name="fotoTipo">
+                    <option value="puerta">Puerta</option>
+                    <option value="fachada">Fachada</option>
+                    <option value="interior">Interior</option>
+                    <option value="referencia">Referencia</option>
+                  </select>
+                </label>
+              </div>
+              <label>
+                <span>Archivo (JPG, PNG o WebP)</span>
+                <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onFileSelected($event)" />
+              </label>
+              <button type="submit" class="btn-primary" [disabled]="!fotoArchivo">Subir fotografía</button>
+            </form>
+          }
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Catálogo registrado</h2>
+            <span class="badge badge--neutral mono">{{ admin.centros().length }}</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Nombre</th>
+                  <th>Facultad</th>
+                  <th>Módulo</th>
+                  @if (auth.autenticado()) {
+                    <th>Acción</th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                @for (c of admin.centros(); track c.id) {
+                  <tr>
+                    <td class="mono"><strong>{{ c.codigo }}</strong></td>
+                    <td>{{ c.nombre }}</td>
+                    <td>{{ c.facultadSigla || '—' }}</td>
+                    <td class="mono">{{ c.edificioCodigo || c.sedeCodigo }} (P{{ c.piso }})</td>
+                    @if (auth.autenticado()) {
+                      <td>
+                        <button type="button" class="btn-del" (click)="admin.eliminarCentro(c.codigo)">
+                          Eliminar
+                        </button>
+                      </td>
+                    }
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td [attr.colspan]="auth.autenticado() ? 5 : 4" class="empty-cell">
+                      No hay Centros Internos cargados todavía en la base de datos.
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    }
+
+    @case ('superficies') {
+      <section class="panel">
+        <h2>Tabla de Infraestructura y Superficies Calculadas</h2>
+        <p class="hint">Superficies y longitudes calculadas automáticamente en PostGIS (`geography`).</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Sede</th>
+                <th>Nombre</th>
+                <th>Sup. Sede (m²)</th>
+                <th>Edificios</th>
+                <th>Sup. Edificios (m²)</th>
+                <th>Áreas</th>
+                <th>Sup. Áreas (m²)</th>
+                <th>Vías (m)</th>
+                <th>Centros</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of admin.resumenEspacial(); track r.sedeCodigo) {
+                <tr>
+                  <td class="mono"><strong>{{ r.sedeCodigo }}</strong></td>
+                  <td>{{ r.sedeNombre }}</td>
+                  <td class="mono">{{ r.superficieSedeM2 | number: '1.1-1' }}</td>
+                  <td class="mono">{{ r.totalEdificios }}</td>
+                  <td class="mono">{{ r.superficieEdificiosM2 | number: '1.1-1' }}</td>
+                  <td class="mono">{{ r.totalAreas }}</td>
+                  <td class="mono">{{ r.superficieAreasM2 | number: '1.1-1' }}</td>
+                  <td class="mono">{{ r.longitudViasM | number: '1.1-1' }}</td>
+                  <td class="mono"><strong>{{ r.totalCentrosInternos }}</strong></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    @case ('qa') {
+      @if (admin.qaTopologica(); as qa) {
+        <div class="qa-grid">
+          <section class="panel">
+            <div class="panel-head">
+              <h3>Ambientes fuera de edificio</h3>
+              <span class="badge mono" [class.badge--ok]="qa.ambientesFueraDeEdificio.length === 0" [class.badge--red]="qa.ambientesFueraDeEdificio.length > 0">
+                {{ qa.ambientesFueraDeEdificio.length }}
+              </span>
+            </div>
+            <p class="hint">Control sobre <code>v_ambiente_fuera_de_edificio</code>.</p>
+            @if (qa.ambientesFueraDeEdificio.length === 0) {
+              <p class="qa-ok">Todos los puntos están dentro de su edificio.</p>
+            } @else {
+              <ul class="qa-list">
+                @for (item of qa.ambientesFueraDeEdificio; track item.id) {
+                  <li>{{ item.codigo }} ({{ item.edificioCodigo }}) — {{ item.distanciaM }} m</li>
+                }
+              </ul>
+            }
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <h3>Vías desconectadas</h3>
+              <span class="badge mono" [class.badge--ok]="qa.viasDesconectadas.length === 0" [class.badge--red]="qa.viasDesconectadas.length > 0">
+                {{ qa.viasDesconectadas.length }}
+              </span>
+            </div>
+            <p class="hint">Control sobre <code>v_via_desconectada</code>.</p>
+            @if (qa.viasDesconectadas.length === 0) {
+              <p class="qa-ok">Red peatonal conectada sin tramos sueltos.</p>
+            } @else {
+              <ul class="qa-list">
+                @for (item of qa.viasDesconectadas; track item.id) {
+                  <li>{{ item.codigo }} — {{ item.nombre }}</li>
+                }
+              </ul>
+            }
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <h3>Entradas sin vía cercana</h3>
+              <span class="badge mono" [class.badge--ok]="qa.entradasSinVia.length === 0" [class.badge--red]="qa.entradasSinVia.length > 0">
+                {{ qa.entradasSinVia.length }}
+              </span>
+            </div>
+            <p class="hint">Control sobre <code>v_entrada_sin_via</code> (radio 2 m).</p>
+            @if (qa.entradasSinVia.length === 0) {
+              <p class="qa-ok">Todas las entradas están conectadas a senderos.</p>
+            } @else {
+              <ul class="qa-list">
+                @for (item of qa.entradasSinVia; track item.id) {
+                  <li>{{ item.codigo }} — {{ item.distanciaViaM }} m</li>
+                }
+              </ul>
+            }
+          </section>
+        </div>
+      }
+    }
+  }
+</div>

@@ -1,0 +1,19 @@
+<div class="ar-viewport">
+  <div #arHost class="ar-stage"></div>
+
+  <app-ar-hud
+    [posicion]="arState.posicionActual()"
+    [camaraActiva]="arState.camaraActiva()"
+    [estadoMensaje]="arState.estadoMensaje()"
+    [puntosCercanos]="arState.puntosCercanos()"
+    [centroEnfocado]="arState.centroEnfocado()"
+    [radioVisibilidadM]="arState.radioVisibilidadM()"
+    [rumboSimulado]="arState.rumboSimuladoGrados()"
+    (activarGps)="arState.activarGpsReal()"
+    (simularCampus)="arState.simularPosicionCampus()"
+    (cambiarRumbo)="arState.cambiarRumboSimulado($event)"
+    (cambiarRadio)="arState.cambiarRadioVisibilidad($event)"
+    (seleccionarCentro)="arState.enfocarCentro($event)"
+    (cerrarFicha)="arState.cerrarFicha()"
+  />
+</div>

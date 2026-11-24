@@ -1,0 +1,131 @@
+<div class="mapa-layout">
+  <aside class="mapa-sidebar" [class.is-open-mobile]="panelMovilAbierto()">
+    <div class="sheet-bar">
+      <span class="sheet-handle"></span>
+      <button type="button" class="sheet-close" (click)="cerrarPanelMovil()">Cerrar</button>
+    </div>
+
+    <div class="sidebar-tabs">
+      <button
+        type="button"
+        [class.is-active]="tabActiva() === 'centros'"
+        (click)="tabActiva.set('centros')"
+      >
+        Centros ({{ mapaState.totalCentrosFiltrados() }})
+      </button>
+      <button
+        type="button"
+        [class.is-active]="tabActiva() === 'rutas'"
+        (click)="tabActiva.set('rutas')"
+      >
+        Rutas
+      </button>
+      <button
+        type="button"
+        [class.is-active]="tabActiva() === 'leyenda'"
+        (click)="tabActiva.set('leyenda')"
+      >
+        Capas y Leyenda
+      </button>
+    </div>
+
+    <div class="sidebar-body">
+      @switch (tabActiva()) {
+        @case ('centros') {
+          <app-filtros-panel
+            [facultades]="mapaState.facultades()"
+            [sedes]="mapaState.sedes()"
+            [centros]="mapaState.centrosInternos()"
+            [resultadosBusqueda]="mapaState.resultadosBusqueda()"
+            [facultadIdSeleccionada]="mapaState.facultadIdFiltro()"
+            [sedeCodigoSeleccionada]="mapaState.sedeCodigoFiltro()"
+            [soloSinEscaleras]="mapaState.soloSinEscaleras()"
+            [textoBusqueda]="mapaState.textoBusqueda()"
+            [codigoSeleccionado]="mapaState.centroSeleccionado()?.codigo ?? null"
+            (buscarTexto)="mapaState.buscarTextoGlobal($event)"
+            (cambiarFacultad)="mapaState.aplicarFiltros({ facultadId: $event })"
+            (cambiarSede)="mapaState.aplicarFiltros({ sedeCodigo: $event })"
+            (cambiarAccesibilidad)="mapaState.aplicarFiltros({ soloSinEscaleras: $event })"
+            (seleccionarCentro)="onCentroClick($event)"
+            (seleccionarBusqueda)="mapaState.seleccionarResultadoBusqueda($event); cerrarPanelMovil()"
+          />
+        }
+        @case ('rutas') {
+          <app-rutas-panel
+            [origen]="rutasState.origen()"
+            [destino]="rutasState.destino()"
+            [centros]="mapaState.centrosInternos()"
+            [soloAccesible]="rutasState.soloAccesible()"
+            [radioM]="rutasState.radioM()"
+            [seleccionandoEnMapa]="rutasState.seleccionandoEnMapa()"
+            [calculando]="rutasState.calculando()"
+            [ruta]="rutasState.ruta()"
+            [error]="rutasState.error()"
+            (usarGps)="rutasState.usarMiUbicacionComoOrigen()"
+            (usarEntradaCU)="rutasState.usarEntradaOesteCU()"
+            (activarSeleccionMapa)="onActivarSeleccionMapa()"
+            (seleccionarCentroDestino)="rutasState.trazarHaciaCentro($event)"
+            (cambiarAccesible)="rutasState.soloAccesible.set($event)"
+            (cambiarRadio)="rutasState.radioM.set($event)"
+            (calcular)="onCalcularRuta()"
+            (limpiar)="rutasState.limpiar()"
+          />
+        }
+        @case ('leyenda') {
+          <app-leyenda-panel
+            [leyenda]="mapaState.leyenda()"
+            [capasVisibles]="mapaState.capasVisibles()"
+            (toggleCapa)="mapaState.toggleCapa($event)"
+          />
+        }
+      }
+    </div>
+  </aside>
+
+  <section class="mapa-canvas-area">
+    <app-mapa-visor
+      [modo3D]="mapaState.modo3D()"
+      [mapaBase]="mapaState.mapaBase()"
+      [seleccionandoOrigen]="rutasState.seleccionandoEnMapa()"
+      [estadoUbicacion]="estadoUbicacion()"
+      (centroClick)="onCentroClick($event)"
+      (mapaClick)="onMapaClick($event)"
+      (toggle3D)="mapaState.toggle3D()"
+      (toggleMapaBase)="mapaState.toggleMapaBase()"
+      (solicitarGps)="onSolicitarGps()"
+      (centrarCampus)="onCentrarCampus($event)"
+    />
+
+    @if (mapaState.centroSeleccionado(); as centro) {
+      <app-centro-detalle
+        [centro]="centro"
+        (cerrar)="mapaState.limpiarSeleccion()"
+        (trazarRuta)="onTrazarRutaACentro($event)"
+      />
+    }
+  </section>
+
+  <nav class="mobile-dock" aria-label="Paneles del mapa">
+    <button
+      type="button"
+      [class.is-active]="panelMovilAbierto() && tabActiva() === 'centros'"
+      (click)="abrirTabMovil('centros')"
+    >
+      Centros ({{ mapaState.totalCentrosFiltrados() }})
+    </button>
+    <button
+      type="button"
+      [class.is-active]="panelMovilAbierto() && tabActiva() === 'rutas'"
+      (click)="abrirTabMovil('rutas')"
+    >
+      Rutas
+    </button>
+    <button
+      type="button"
+      [class.is-active]="panelMovilAbierto() && tabActiva() === 'leyenda'"
+      (click)="abrirTabMovil('leyenda')"
+    >
+      Capas
+    </button>
+  </nav>
+</div>

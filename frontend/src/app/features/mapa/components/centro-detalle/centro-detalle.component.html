@@ -1,0 +1,95 @@
+<aside class="detalle-card">
+  <div class="detalle-card__header">
+    <div>
+      <span class="codigo mono">{{ centro().codigo }}</span>
+      <h3>{{ centro().nombre }}</h3>
+    </div>
+    <button type="button" class="close-btn" (click)="cerrar.emit()" aria-label="Cerrar ficha">
+      ✕
+    </button>
+  </div>
+
+  <div class="detalle-card__badges">
+    <span class="badge badge--red">{{ centro().facultadSigla || 'UAGRM' }}</span>
+    <span class="badge badge--blue">
+      {{ centro().edificioCodigo || centro().sedeCodigo }} ·
+      {{ centro().piso === 0 ? 'PB' : 'Piso ' + centro().piso }}
+    </span>
+    <span
+      class="badge"
+      [class.badge--ok]="centro().llegadaSinEscaleras"
+      [class.badge--warn]="!centro().llegadaSinEscaleras"
+    >
+      {{ centro().llegadaSinEscaleras ? 'Sin escaleras' : 'Con escaleras' }}
+    </span>
+  </div>
+
+  @if (centro().descripcion) {
+    <p class="detalle-card__desc">{{ centro().descripcion }}</p>
+  }
+
+  <dl class="detalle-card__info">
+    @if (centro().facultadNombre) {
+      <div>
+        <dt>Facultad</dt>
+        <dd>{{ centro().facultadNombre }}</dd>
+      </div>
+    }
+    @if (centro().referencia) {
+      <div>
+        <dt>Referencia de llegada</dt>
+        <dd>{{ centro().referencia }}</dd>
+      </div>
+    }
+    @if (centro().encargado) {
+      <div>
+        <dt>Responsable</dt>
+        <dd>{{ centro().encargado }}</dd>
+      </div>
+    }
+    @if (centro().horario) {
+      <div>
+        <dt>Horario</dt>
+        <dd>{{ centro().horario }}</dd>
+      </div>
+    }
+    @if (centro().telefono) {
+      <div>
+        <dt>Teléfono</dt>
+        <dd class="mono">{{ centro().telefono }}</dd>
+      </div>
+    }
+  </dl>
+
+  @if (centro().servicios.length > 0) {
+    <div class="detalle-card__servicios">
+      <h4>Servicios</h4>
+      <div class="chips">
+        @for (srv of centro().servicios; track srv) {
+          <span class="chip">{{ srv }}</span>
+        }
+      </div>
+    </div>
+  }
+
+  @if (centro().fotos.length > 0) {
+    <div class="detalle-card__fotos">
+      <h4>Registro fotográfico</h4>
+      <div class="fotos-grid">
+        @for (foto of centro().fotos; track foto.id) {
+          <figure>
+            <img [src]="'/uploads/fotos/' + foto.ruta" [alt]="foto.tipo" />
+            <figcaption>{{ foto.tipo }}</figcaption>
+          </figure>
+        }
+      </div>
+    </div>
+  }
+
+  <div class="detalle-card__actions">
+    <button type="button" class="btn-primary" (click)="trazarRuta.emit(centro())">
+      Trazar ruta
+    </button>
+    <a routerLink="/ar" class="btn-secondary">Ver en AR</a>
+  </div>
+</aside>

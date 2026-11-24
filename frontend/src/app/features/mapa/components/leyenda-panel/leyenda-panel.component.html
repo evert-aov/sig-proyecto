@@ -1,0 +1,29 @@
+<section class="leyenda-panel">
+  <h3>Capas visibles</h3>
+  <div class="capas-list">
+    @for (c of capasControl; track c.id) {
+      <label class="capa-row">
+        <input
+          type="checkbox"
+          [checked]="capasVisibles()[c.id] !== false"
+          (change)="toggleCapa.emit(c.id)"
+        />
+        <span class="swatch" [style.background]="c.color"></span>
+        <span>{{ c.etiqueta }}</span>
+      </label>
+    }
+  </div>
+
+  <h3>Catálogo de simbología (v_leyenda)</h3>
+  <div class="leyenda-items">
+    @for (item of leyenda(); track item.capa + '-' + item.codigo) {
+      <div class="leyenda-item">
+        <span class="dot" [style.background]="item.color"></span>
+        <div>
+          <strong>{{ item.nombre }}</strong>
+          <small>{{ item.capa }} · {{ item.categoria }}</small>
+        </div>
+      </div>
+    }
+  </div>
+</section>

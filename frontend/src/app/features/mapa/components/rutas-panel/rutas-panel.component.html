@@ -1,0 +1,96 @@
+<section class="rutas-panel">
+  <div class="rutas-box">
+    <div class="rutas-box__label">Punto de inicio</div>
+    <div class="rutas-box__value">{{ origen().etiqueta }}</div>
+    <div class="rutas-box__btns">
+      <button type="button" (click)="usarGps.emit()">Usar mi GPS</button>
+      <button type="button" (click)="usarEntradaCU.emit()">Entrada CU</button>
+      <button
+        type="button"
+        [class.is-active]="seleccionandoEnMapa()"
+        (click)="activarSeleccionMapa.emit()"
+      >
+        {{ seleccionandoEnMapa() ? 'Clic en mapa...' : 'Elegir punto' }}
+      </button>
+    </div>
+  </div>
+
+  <label class="field">
+    <span>Destino (Centro Interno)</span>
+    <select [ngModel]="''" (ngModelChange)="onSelectCentro($event)">
+      <option value="">{{ destino()?.etiqueta || 'Seleccione un Centro Interno...' }}</option>
+      @for (c of centros(); track c.id) {
+        <option [value]="c.codigo">{{ c.unidadSigla || c.codigo }} — {{ c.nombre }}</option>
+      }
+    </select>
+  </label>
+
+  <label class="checkbox-row">
+    <input
+      type="checkbox"
+      [ngModel]="soloAccesible()"
+      (ngModelChange)="cambiarAccesible.emit($event)"
+    />
+    <span>Ruta accesible sin gradas</span>
+  </label>
+
+  <label class="field">
+    <span>Radio de detección seguridad/salud: <strong class="mono">{{ radioM() }} m</strong></span>
+    <input
+      type="range"
+      min="15"
+      max="150"
+      step="5"
+      [ngModel]="radioM()"
+      (ngModelChange)="cambiarRadio.emit(+$event)"
+    />
+  </label>
+
+  <div class="actions">
+    <button type="button" class="btn-calc" [disabled]="calculando()" (click)="calcular.emit()">
+      {{ calculando() ? 'Calculando...' : 'Calcular ruta' }}
+    </button>
+    <button type="button" class="btn-clear" (click)="limpiar.emit()">Limpiar</button>
+  </div>
+
+  @if (error()) {
+    <div class="error-box">{{ error() }}</div>
+  }
+
+  @if (ruta()?.encontrada) {
+    <div class="resultado">
+      <div class="metricas">
+        <div>
+          <strong class="mono">{{ ruta()?.distancia_m }} m</strong>
+          <small>Distancia peatonal</small>
+        </div>
+        <div>
+          <strong class="mono">{{ ruta()?.tiempo_estimado_min }} min</strong>
+          <small>Tiempo estimado</small>
+        </div>
+      </div>
+
+      <h4>
+        Extintores y centros médicos cercanos ({{ ruta()?.elementos_cercanos?.features?.length || 0 }})
+      </h4>
+      <ul class="seguridad-list">
+        @for (feat of ruta()?.elementos_cercanos?.features ?? []; track feat.properties.codigo) {
+          <li>
+            <span class="dot" [style.background]="feat.properties.color"></span>
+            <div>
+              <strong>{{ feat.properties.nombre }}</strong>
+              <small>
+                {{ feat.properties.tipo_nombre }} · a <span class="mono">{{ feat.properties.distancia_ruta_m }} m</span>
+                @if (feat.properties.extintor_agente) {
+                  · {{ feat.properties.extintor_agente }} {{ feat.properties.extintor_kg }}kg
+                }
+              </small>
+            </div>
+          </li>
+        } @empty {
+          <li class="empty">No se detectaron elementos en este radio.</li>
+        }
+      </ul>
+    </div>
+  }
+</section>
