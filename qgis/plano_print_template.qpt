@@ -1,0 +1,13 @@
+<Layout worldFileMap="{00000001-0000-0000-0000-000000000001}" units="mm" printResolution="300" name="Plano_SIG_UAGRM_Centros_Internos">
+ <Snapper tolerance="5" snapToGrid="0" snapToGuides="1" snapToItems="1"/>
+ <Grid resolution="10" offsetX="0" offsetY="0"/>
+ <PageCollection>
+  <LayoutItem type="65638" position="0,0,mm" size="297,210,mm" frame="false" background="true" id="page_a4_landscape"/>
+ </PageCollection>
+ <LayoutItem type="65639" position="8,24,mm" size="205,178,mm" frame="true" background="true" id="mapa_principal" uuid="{00000001-0000-0000-0000-000000000001}" mapRotation="0" keepLayerSet="false"/>
+ <LayoutItem type="65641" position="8,6,mm" size="281,14,mm" frame="true" background="true" id="titulo_plano" labelText="PLANO DIGITAL DE INFRAESTRUCTURA UAGRM — CENTROS INTERNOS (INF442-SA / GRUPO 16)" halign="4" valign="128"/>
+ <LayoutItem type="65642" position="218,24,mm" size="71,82,mm" frame="true" background="true" id="leyenda_oficial" title="LEYENDA OFICIAL" autoUpdateLegend="true" linkedMap="{00000001-0000-0000-0000-000000000001}"/>
+ <LayoutItem type="65646" position="218,110,mm" size="71,18,mm" frame="true" background="true" id="barra_escala" style="Single Box" unitLabel="m" linkedMap="{00000001-0000-0000-0000-000000000001}"/>
+ <LayoutItem type="65640" position="270,132,mm" size="18,18,mm" frame="false" background="false" id="flecha_norte" northMode="0"/>
+ <LayoutItem type="65641" position="218,154,mm" size="71,48,mm" frame="true" background="true" id="tabla_resumen_info" labelText="TABLA DE INFRAESTRUCTURA Y SUPERFICIES&#10;Sistema de Referencia: WGS 84 (EPSG:4326)&#10;Fuente: Levantamiento QField + PostGIS&#10;Superficies y rutas calculadas en geography (m²/m)"/>
+</Layout>
