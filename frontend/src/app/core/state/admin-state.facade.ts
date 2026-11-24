@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { CrearCentroPayload, SigApiService } from '../api/sig-api.service';
 import {
+  ActualizarEdificioPayload,
   CentroInterno,
   EdificioResumen,
   QaTopologica,
@@ -68,6 +69,19 @@ export class AdminStateFacade {
       await this.cargarTodo();
     } catch (err: unknown) {
       this.mensajeError.set(this.extraerError(err));
+    }
+  }
+
+  async actualizarEdificio(codigo: string, payload: ActualizarEdificioPayload): Promise<boolean> {
+    this.limpiarMensajes();
+    try {
+      await firstValueFrom(this.api.actualizarEdificio(codigo, payload));
+      this.mensajeOk.set(`Edificio ${codigo} actualizado correctamente.`);
+      await this.cargarTodo();
+      return true;
+    } catch (err: unknown) {
+      this.mensajeError.set(this.extraerError(err));
+      return false;
     }
   }
 

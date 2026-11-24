@@ -140,7 +140,8 @@
     color: var(--text-secondary);
 
     input,
-    select {
+    select,
+    textarea {
       width: 100%;
       min-width: 0;
       padding: 0.45rem 0.58rem;
@@ -152,10 +153,27 @@
       text-overflow: ellipsis;
     }
 
+    textarea {
+      resize: vertical;
+    }
+
     input[type='file'] {
       padding: 0.36rem;
       background: var(--surface-alt);
       font-size: 0.78rem;
+    }
+  }
+
+  .checkbox-inline {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    cursor: pointer;
+
+    input[type='checkbox'] {
+      width: auto;
     }
   }
 
@@ -171,6 +189,20 @@
   border: none;
   border-top: 1px solid var(--border);
   margin: 1rem 0;
+}
+
+.readonly-strip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.7rem;
+  margin-bottom: 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-alt);
+  font-size: 0.78rem;
+  color: var(--text-secondary);
 }
 
 .session-bar {
@@ -259,6 +291,10 @@
       letter-spacing: 0.02em;
       color: var(--text-secondary);
       white-space: nowrap;
+    }
+
+    tr.is-editing {
+      background: #fef2f2;
     }
   }
 

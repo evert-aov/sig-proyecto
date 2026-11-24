@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
+  ActualizarEdificioPayload,
   AuthUsuario,
   BusquedaResultado,
   CentroInterno,
@@ -101,6 +102,16 @@ export class SigApiService {
 
   obtenerEdificios(): Observable<EdificioResumen[]> {
     return this.http.get<EdificioResumen[]>(`${this.base}/catalogo/edificios`);
+  }
+
+  actualizarEdificio(
+    codigo: string,
+    payload: ActualizarEdificioPayload,
+  ): Observable<EdificioResumen> {
+    return this.http.patch<EdificioResumen>(
+      `${this.base}/edificios/${encodeURIComponent(codigo)}`,
+      payload,
+    );
   }
 
   obtenerUnidadesCentro(): Observable<UnidadCentro[]> {

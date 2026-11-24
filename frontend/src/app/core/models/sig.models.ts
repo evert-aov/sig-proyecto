@@ -103,13 +103,24 @@ export interface EdificioResumen {
   id: number;
   codigo: string;
   nombre: string;
+  alias: string[];
   uso: string;
   pisos: number;
   ascensor: boolean;
+  descripcion: string | null;
   areaM2: number | null;
   sedeCodigo: string;
   lon: number | null;
   lat: number | null;
+}
+
+export interface ActualizarEdificioPayload {
+  nombre?: string;
+  alias?: string[];
+  uso?: 'academico' | 'administrativo' | 'servicios' | 'deportivo' | 'mixto';
+  pisos?: number;
+  ascensor?: boolean;
+  descripcion?: string | null;
 }
 
 export interface UnidadCentro {

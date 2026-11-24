@@ -4,6 +4,7 @@ import {
   LngLatLike,
   Map as MapLibreMap,
   NavigationControl,
+  Popup,
   ScaleControl,
   StyleSpecification,
   setWorkerUrl,
@@ -13,11 +14,13 @@ import { GeoJsonFeature, GeoJsonFeatureCollection } from '../models/sig.models';
 export interface VisorCallbacks {
   onCentroClick: (codigo: string) => void;
   onMapaClick: (lon: number, lat: number) => void;
+  isSeleccionandoOrigen?: () => boolean;
 }
 
 @Injectable({ providedIn: 'root' })
 export class MaplibreEngineService {
   private map: MapLibreMap | null = null;
+  private edificioPopup: Popup | null = null;
   private modo3D = false;
   private mapaCargado = false;
   private readonly fuentesPendientes = new Map<string, GeoJsonFeatureCollection>();
@@ -90,12 +93,30 @@ export class MaplibreEngineService {
     });
 
     map.on('click', (ev) => {
-      const features = map.queryRenderedFeatures(ev.point, {
+      const centroFeatures = map.queryRenderedFeatures(ev.point, {
         layers: ['centros-internos-circle'],
       });
-      if (features && features.length > 0) {
+      if (centroFeatures && centroFeatures.length > 0) {
         return;
       }
+
+      if (callbacks.isSeleccionandoOrigen?.()) {
+        callbacks.onMapaClick(ev.lngLat.lng, ev.lngLat.lat);
+        return;
+      }
+
+      const capasEdificios = ['edificios-fill-2d', 'edificios-extrusion-3d'].filter((id) =>
+        Boolean(map.getLayer(id)),
+      );
+      if (capasEdificios.length > 0) {
+        const edifFeatures = map.queryRenderedFeatures(ev.point, { layers: capasEdificios });
+        const props = edifFeatures?.[0]?.properties;
+        if (props) {
+          this.mostrarPopupEdificio(map, ev.lngLat, props as Record<string, unknown>);
+          return;
+        }
+      }
+
       callbacks.onMapaClick(ev.lngLat.lng, ev.lngLat.lat);
     });
   }
@@ -383,6 +404,15 @@ export class MaplibreEngineService {
       if (this.map) this.map.getCanvas().style.cursor = '';
     });
 
+    for (const layerId of ['edificios-fill-2d', 'edificios-extrusion-3d']) {
+      this.map.on('mouseenter', layerId, () => {
+        if (this.map) this.map.getCanvas().style.cursor = 'pointer';
+      });
+      this.map.on('mouseleave', layerId, () => {
+        if (this.map) this.map.getCanvas().style.cursor = '';
+      });
+    }
+
     this.map.on('click', 'centros-internos-circle', (ev) => {
       const feat = ev.features?.[0];
       const codigo = feat?.properties?.['codigo'] as string | undefined;
@@ -466,8 +496,70 @@ export class MaplibreEngineService {
   }
 
   destruir(): void {
+    this.edificioPopup?.remove();
+    this.edificioPopup = null;
     this.mapaCargado = false;
     this.map?.remove();
     this.map = null;
+  }
+
+  private mostrarPopupEdificio(
+    map: MapLibreMap,
+    lngLat: LngLatLike,
+    props: Record<string, unknown>,
+  ): void {
+    this.edificioPopup?.remove();
+
+    const root = document.createElement('div');
+    root.className = 'edif-popup';
+
+    const head = document.createElement('div');
+    head.className = 'edif-popup__head';
+
+    const code = document.createElement('span');
+    code.className = 'edif-popup__code';
+    code.textContent = String(props['codigo'] ?? '');
+
+    const sede = document.createElement('span');
+    sede.className = 'edif-popup__sede';
+    sede.textContent = String(props['sede_codigo'] ?? 'UAGRM');
+
+    head.append(code, sede);
+
+    const title = document.createElement('h4');
+    title.className = 'edif-popup__title';
+    title.textContent = String(props['nombre'] ?? 'Edificio');
+
+    const grid = document.createElement('div');
+    grid.className = 'edif-popup__grid';
+
+    const areaVal = props['area_m2'] != null ? `${Number(props['area_m2']).toFixed(1)} m²` : '—';
+    const ascVal = props['ascensor'] === true || props['ascensor'] === 'true' ? 'Sí' : 'No';
+    const items = [
+      `Uso: ${String(props['uso'] ?? '—')}`,
+      `Pisos: ${String(props['pisos'] ?? '—')}`,
+      `Área: ${areaVal}`,
+      `Ascensor: ${ascVal}`,
+      `Centros Int.: ${String(props['total_centros_internos'] ?? 0)}`,
+    ];
+    for (const texto of items) {
+      const cell = document.createElement('span');
+      cell.textContent = texto;
+      grid.appendChild(cell);
+    }
+
+    root.append(head, title, grid);
+
+    if (typeof props['descripcion'] === 'string' && props['descripcion'].trim()) {
+      const desc = document.createElement('p');
+      desc.className = 'edif-popup__desc';
+      desc.textContent = props['descripcion'];
+      root.appendChild(desc);
+    }
+
+    this.edificioPopup = new Popup({ closeButton: true, maxWidth: '290px' })
+      .setLngLat(lngLat)
+      .setDOMContent(root)
+      .addTo(map);
   }
 }

@@ -29,6 +29,7 @@ export class MapaVisorComponent implements AfterViewInit, OnDestroy {
     this.mapEngine.inicializar(this.mapContainer.nativeElement, {
       onCentroClick: (codigo) => this.centroClick.emit(codigo),
       onMapaClick: (lon, lat) => this.mapaClick.emit({ lon, lat }),
+      isSeleccionandoOrigen: () => this.seleccionandoOrigen(),
     });
   }
 

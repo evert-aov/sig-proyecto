@@ -2,12 +2,15 @@
   <header class="admin-header">
     <div>
       <h1>Gestión de Infraestructura y Control Espacial</h1>
-      <p>Catálogo de Centros Internos (Grupo 16), superficies calculadas y validación topológica PostGIS.</p>
+      <p>Catálogo de Centros Internos (Grupo 16), edición descriptiva de edificios y control PostGIS.</p>
     </div>
 
     <div class="tabs" role="tablist">
       <button type="button" [class.is-active]="tab() === 'centros'" (click)="tab.set('centros')">
         Centros y Fotos
+      </button>
+      <button type="button" [class.is-active]="tab() === 'edificios'" (click)="tab.set('edificios')">
+        Edificios ({{ admin.edificios().length }})
       </button>
       <button type="button" [class.is-active]="tab() === 'superficies'" (click)="tab.set('superficies')">
         Superficies (m²)
@@ -209,10 +212,143 @@
       </div>
     }
 
+    @case ('edificios') {
+      <div class="grid-two">
+        <section class="panel">
+          @if (!auth.autenticado()) {
+            <h2>Acceso de edición</h2>
+            <p class="hint">Inicia sesión para editar los datos descriptivos de los edificios.</p>
+            <form (ngSubmit)="onLogin()" class="form-stack">
+              <label>
+                <span>Correo institucional</span>
+                <input type="email" [(ngModel)]="correo" name="correoEdif" required />
+              </label>
+              <label>
+                <span>Contraseña</span>
+                <input type="password" [(ngModel)]="password" name="passwordEdif" placeholder="Contraseña" required />
+              </label>
+              @if (auth.error()) {
+                <p class="err">{{ auth.error() }}</p>
+              }
+              <button type="submit" class="btn-primary">Iniciar sesión</button>
+            </form>
+          } @else if (!edifEditCodigo) {
+            <h2>Editar datos de edificio</h2>
+            <p class="hint">
+              Selecciona un módulo en la tabla de la derecha usando el botón <strong>Editar</strong>.
+              Solo se modifican atributos descriptivos; la geometría y ubicación permanecen protegidas para QGIS.
+            </p>
+          } @else {
+            <div class="panel-head">
+              <h2>Editar edificio <span class="mono">{{ edifEditCodigo }}</span></h2>
+              <button type="button" class="btn-outline" (click)="cancelarEdicionEdificio()">Cancelar</button>
+            </div>
+
+            <div class="readonly-strip">
+              <span>Sede: <strong class="mono">{{ edifEditSede }}</strong></span>
+              <span>Superficie: <strong class="mono">{{ edifEditAreaM2 | number: '1.1-1' }} m²</strong></span>
+            </div>
+            <p class="hint">La geometría y coordenadas no son editables desde la web.</p>
+
+            <form (ngSubmit)="onGuardarEdificio()" class="form-stack">
+              <label>
+                <span>Nombre del edificio / módulo</span>
+                <input type="text" [(ngModel)]="edifEditNombre" name="edifEditNombre" required />
+              </label>
+
+              <label>
+                <span>Alias / nombres alternativos (separados por coma)</span>
+                <input type="text" [(ngModel)]="edifEditAliasTexto" name="edifEditAliasTexto" placeholder="Ej. FICCT, Módulo de Computación" />
+              </label>
+
+              <div class="row-2">
+                <label>
+                  <span>Uso</span>
+                  <select [(ngModel)]="edifEditUso" name="edifEditUso">
+                    <option value="academico">Académico</option>
+                    <option value="administrativo">Administrativo</option>
+                    <option value="servicios">Servicios</option>
+                    <option value="deportivo">Deportivo</option>
+                    <option value="mixto">Mixto</option>
+                  </select>
+                </label>
+
+                <label>
+                  <span>Pisos (incluyendo PB)</span>
+                  <input type="number" min="1" max="30" [(ngModel)]="edifEditPisos" name="edifEditPisos" class="mono" required />
+                </label>
+              </div>
+
+              <label class="checkbox-inline">
+                <input type="checkbox" [(ngModel)]="edifEditAscensor" name="edifEditAscensor" />
+                <span>Cuenta con ascensor operativo</span>
+              </label>
+
+              <label>
+                <span>Descripción</span>
+                <textarea rows="3" [(ngModel)]="edifEditDescripcion" name="edifEditDescripcion" placeholder="Descripción general del edificio"></textarea>
+              </label>
+
+              <button type="submit" class="btn-primary">Guardar cambios</button>
+            </form>
+          }
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Edificios registrados</h2>
+            <span class="badge badge--neutral mono">{{ admin.edificios().length }}</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Nombre</th>
+                  <th>Sede</th>
+                  <th>Uso</th>
+                  <th>Pisos</th>
+                  <th>Ascensor</th>
+                  <th>Sup. (m²)</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (e of admin.edificios(); track e.id) {
+                  <tr [class.is-editing]="edifEditCodigo === e.codigo">
+                    <td class="mono"><strong>{{ e.codigo }}</strong></td>
+                    <td>{{ e.nombre }}</td>
+                    <td class="mono">{{ e.sedeCodigo }}</td>
+                    <td>{{ e.uso }}</td>
+                    <td class="mono">{{ e.pisos }}</td>
+                    <td>
+                      <span class="badge" [class.badge--ok]="e.ascensor" [class.badge--neutral]="!e.ascensor">
+                        {{ e.ascensor ? 'Sí' : 'No' }}
+                      </span>
+                    </td>
+                    <td class="mono">{{ e.areaM2 | number: '1.1-1' }}</td>
+                    <td>
+                      <button type="button" class="btn-outline" (click)="seleccionarEdificioParaEditar(e)">
+                        Editar
+                      </button>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="8" class="empty-cell">No hay edificios registrados.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    }
+
     @case ('superficies') {
       <section class="panel">
         <h2>Tabla de Infraestructura y Superficies Calculadas</h2>
-        <p class="hint">Superficies y longitudes calculadas automáticamente en PostGIS (`geography`).</p>
+        <p class="hint">Superficies y longitudes calculadas automáticamente en PostGIS (<code>geography</code>).</p>
         <div class="table-wrap">
           <table>
             <thead>
