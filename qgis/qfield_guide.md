@@ -1,7 +1,8 @@
 # Guía QGIS + QField — SIG UAGRM 2026-2 (Grupo 16: Centros Internos)
 
 ## 1. Archivos generados para QGIS
-- **GeoPackage de trabajo:** `qgis/sig_uagrm_centros_internos.gpkg` (en **WGS 84 / EPSG:4326**).
+- **GeoPackage de trabajo:** `qgis/plantilla_campo_grupo16.gpkg` (en **WGS 84 / EPSG:4326**).
+- **Proyecto QGIS principal:** `qgis/proyecto_campo_grupo16.qgz` (conectado a `plantilla_campo_grupo16.gpkg`, con mapas base OSM/Satélite y estilos aplicados).
   - Contiene las 6 capas espaciales con los nombres de campo exactos de la plantilla común (`CODIGO`, `TIPO`, `EDIFICIO`, `SEDE`, `ALIAS`, `SERVICIOS`, `GRUPO`, etc.):
     - `sede` (MultiPolygon)
     - `edificio` (MultiPolygon)
@@ -25,7 +26,7 @@ También puedes editar o visualizar la base directamente en QGIS:
 
 ## 3. Levantamiento en campo con QField (QFieldSync)
 1. Instalar el plugin **QFieldSync** en QGIS (`Complementos → Administrar e instalar complementos`).
-2. Abrir `qgis/sig_uagrm_centros_internos.gpkg` en QGIS y aplicar los `.qml` de `qgis/styles/`.
+2. Abrir `qgis/proyecto_campo_grupo16.qgz` en QGIS (o cargar `qgis/plantilla_campo_grupo16.gpkg` y aplicar los `.qml` de `qgis/styles/`).
 3. **Configurar propiedades para QField:**
    - Sistema de coordenadas del proyecto: **EPSG:4326 (WGS 84)** (para que las coordenadas GPS coincidan sin reproyecciones erróneas).
    - En **Propiedades de capa → Formularios de atributos**: configurar valores predeterminados `GRUPO = 16`, `TIPO = 'CENTRO_INTERNO'` para nuevos puntos de Centros Internos.
@@ -41,7 +42,7 @@ También puedes editar o visualizar la base directamente en QGIS:
    - Al regresar, usar **QFieldSync → Sincronizar desde QField**.
    - Ejecutar el script ETL dentro de `nix develop`:
      ```bash
-     ./database/etl/import_shapefiles.sh qgis/sig_uagrm_centros_internos.gpkg
+     ./database/etl/import_shapefiles.sh qgis/plantilla_campo_grupo16.gpkg
      ```
    - Verificar que `fuera_edif = 0`, `via_desc = 0`, `ent_sin_via = 0`.
 
